@@ -1,19 +1,19 @@
-Resource:
+Resources:
   # The federated identity for our user pool to auth with
   CognitoIdentityPool:
     Type: AWS::Cognito::IdentityPool
     Properties:
       # Generate a name based on the stage
       IdentityPoolName: ${self:custom.stage}IdentityPool
-      # Don't allow unauthenticated users
+      # Don't allow unathenticated users
       AllowUnauthenticatedIdentities: false
       # Link to our User Pool
       CognitoIdentityProviders:
         - ClientId:
             Ref: CognitoUserPoolClient
           ProviderName:
-            Fn::GetAtt: [ "CognitoUserPool", "ProviderName"]
-
+            Fn::GetAtt: [ "CognitoUserPool", "ProviderName" ]
+            
   # IAM roles
   CognitoIdentityPoolRoles:
     Type: AWS::Cognito::IdentityPoolRoleAttachment
@@ -23,10 +23,10 @@ Resource:
       Roles:
         authenticated:
           Fn::GetAtt: [CognitoAuthRole, Arn]
-  
+          
   # IAM role used for authenticated users
   CognitoAuthRole:
-    Type: AWS::IAM:Role
+    Type: AWS::IAM::Role
     Properties:
       Path: /
       AssumeRolePolicyDocument:
@@ -41,10 +41,10 @@ Resource:
               StringEquals:
                 'cognito-identity.amazonaws.com:aud':
                   Ref: CognitoIdentityPool
-                'ForAnyValue:StringLike':
-                  'cognito-identity.amazonaws.com:amr': authenticated
+              'ForAnyValue:StringLike':
+                'cognito-identity.amazonaws.com:amr': authenticated
       Policies:
-        - PolicyName: 'CognitoAuthorziedPolicy'
+        - PolicyName: 'CognitoAuthorizedPolicy'
           PolicyDocument:
             Version: '2012-10-17'
             Statement:
@@ -54,7 +54,7 @@ Resource:
                   - 'cognito-sync:*'
                   - 'cognito-identity:*'
                 Resource: '*'
-
+              
               # Allow users to invoke our API
               - Effect: 'Allow'
                 Action:
@@ -70,8 +70,8 @@ Resource:
                       - ':'
                       - Ref: ApiGatewayRestApi
                       - '/*'
-
-              # Allow users to upload attachments to theri
+              
+              # Allow users to upload attachments to their
               # folder inside our S3 bucket
               - Effect: 'Allow'
                 Action:
@@ -84,7 +84,7 @@ Resource:
                       - '/private/'
                       - '$'
                       - '{cognito-identity.amazonaws.com:sub}/*'
-
+  
 # Print out the Id of the Identity Pool that is created
 Outputs:
   IdentityPoolId:
